@@ -1,0 +1,9 @@
+Tick Type Description | tickType Value
+Delayed Bid Price | 100
+Delayed Ask Price | 101
+Delayed Last Price | 102
+Delayed Close Price | 107
+Delayed High Price | 104
+Delayed Low Price | 105
+Delayed Open Price | 103
+Delayed Volume | 106
