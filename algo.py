@@ -4,14 +4,15 @@ import queue
 import sys
 import time
 
-from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus, qu_pnlsingle
 from loguru import logger
+from rich.console import Console
+from rich.theme import Theme
 
+from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus, qu_pnlsingle
 from trade import Trade
 
-# import logging
-logger.remove()  # Remove the default
-logger.add(sys.stderr, level="TRACE")
+pnl_theme = Theme({"gain": "green", "loss": "red"})
+console = Console(theme=pnl_theme)
 
 
 def enter_trade(t: Trade, client: IBClient):
@@ -21,25 +22,31 @@ def enter_trade(t: Trade, client: IBClient):
     #     logger.info("[Algo] Active Stream, cannot create another stream...")
     #     return None
     # Send request
+
+    pnl = 0.0
+    ctx = f"[ {t.symbol}: {pnl} ] [ reqid: {client.order_id} ]"
+    console.print(ctx + "generate reqid for get contract detail")
     client.nextId()
+    console.print(ctx)
     ctx = t.define_contract()
     # Wait for status
+    console.print(ctx + "getting contract detail from tws")
     client.reqContractDetails(client.order_id, contract=ctx)
     time.sleep(1)
     try:
         msg = qu_ctx.get(timeout=5)
-        logger.info(f"[Algo] ReqId {msg['reqId']} - Getting Contract Detail")
+        logger.info(ctx + "Getting Contract Detail")
+        console.print(ctx + f"contract id {msg['conId']}")
         t.conid = msg["conId"]
-        logger.info(
-            f"[Algo] ReqId {msg['reqId']}: ConId for {t.symbol} - {msg['conId']}"
-        )
+        logger.info(ctx + f"ConId for {t.symbol} - {msg['conId']}")
     except queue.Empty:
-        logger.info(f"[Algo] Unable to get Contract ID for {t.symbol}...")
-        logger.info(f"[Algo] Algo is shutting down for {t.symbol}...")
+        logger.info(ctx + f"Unable to get Contract ID for {t.symbol}...")
+        logger.info(ctx + f"Algo is shutting down for {t.symbol}...")
         client.disconnect()
         sys.exit(1)
 
     client.nextId()
+    console.print(ctx + "getting request id")
     ordfn = t.create_order_fn(reqId=client.order_id, action="BUY")
     client.reqMktData(client.order_id, ctx, "", False, False, [])
 
@@ -51,7 +58,7 @@ def enter_trade(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 4:
                 continue
             logger.info(f"[Algo] ReqId {msg['reqId']} - Ask {msg['price']}")
-            buy = input(f"Buy {t.symbol} at {msg['price']} (y/n)")
+            buy = console.input(f"Buy {t.symbol} at {msg['price']} (y/n)")
             if buy == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
