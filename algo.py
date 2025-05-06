@@ -15,6 +15,16 @@ pnl_theme = Theme({"gain": "green", "loss": "red"})
 console = Console(theme=pnl_theme)
 
 
+def print_status(t: Trade, client: IBClient, pnl, pnl_pct):
+    req = f" [ reqid: {client.order_id} ]"
+    heading = f" [ {t.symbol} ] [  Pos  ] [  PnL (%) ]"
+    status = f" [ Long ] [   {t.position} ] [   {pnl} {pnl_pct} ]"
+
+    console.print(req)
+    console.print(heading)
+    console.print(status)
+
+
 def enter_trade(t: Trade, client: IBClient):
     # check for existing marketdata stream
     # if client.order_id in client.active_streams:
@@ -24,32 +34,36 @@ def enter_trade(t: Trade, client: IBClient):
     # Send request
 
     pnl = 0.0
-    ctx = f"[ {t.symbol}: {pnl} ] [ reqid: {client.order_id} ]"
-    console.print(ctx + "generate reqid for get contract detail")
+    pnl_pct = 0.0
+    print_status(t, client, pnl, pnl_pct)
+
     client.nextId()
-    console.print(ctx)
+    req = f" [ reqid: {client.order_id} ]"
+    console.print(req + "new reqid created")
     ctx = t.define_contract()
     # Wait for status
-    console.print(ctx + "getting contract detail from tws")
+    console.print(req + "getting contract id from tws")
     client.reqContractDetails(client.order_id, contract=ctx)
     time.sleep(1)
     try:
         msg = qu_ctx.get(timeout=5)
-        logger.info(ctx + "Getting Contract Detail")
-        console.print(ctx + f"contract id {msg['conId']}")
+        logger.info(req + "Getting Contract Detail")
+        # console.print(ctx + f"contract id {msg['conId']}")
         t.conid = msg["conId"]
-        logger.info(ctx + f"ConId for {t.symbol} - {msg['conId']}")
+        logger.info(req + f"ConId for {t.symbol} - {msg['conId']}")
     except queue.Empty:
-        logger.info(ctx + f"Unable to get Contract ID for {t.symbol}...")
-        logger.info(ctx + f"Algo is shutting down for {t.symbol}...")
+        logger.info(req + f"Unable to get Contract ID for {t.symbol}...")
+        logger.info(req + f"Algo is shutting down for {t.symbol}...")
         client.disconnect()
         sys.exit(1)
 
     client.nextId()
-    console.print(ctx + "getting request id")
+    req = f" [ reqid: {client.order_id} ]"
+    console.print(req + "getting request id")
     ordfn = t.create_order_fn(reqId=client.order_id, action="BUY")
     client.reqMktData(client.order_id, ctx, "", False, False, [])
 
+    console.print("--------")
     # Wait for status
     while True:
         try:
@@ -58,10 +72,11 @@ def enter_trade(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 4:
                 continue
             logger.info(f"[Algo] ReqId {msg['reqId']} - Ask {msg['price']}")
-            buy = console.input(f"Buy {t.symbol} at {msg['price']} (y/n)")
+            buy = console.input(f" {req} Buy {t.symbol} at {msg['price']} (y/n)")
             if buy == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
+                console.print(f" {req} order sent ")
                 break
             else:
                 continue
@@ -88,9 +103,15 @@ def check_order(t: Trade, client: IBClient):
 
 
 def getPnlSingle(t: Trade, client: IBClient, account: str) -> float:
+    pnl = 0
+    pnl_pct = 0.0
+
+    req = f" [ reqid: {client.order_id} ]"
+    heading = f" [ {t.symbol} ] [  Pos  ] [  PnL (%)  ]"
+    status = f" [ Long ] [ {t.position} ] [ {pnl} {pnl_pct} ]"
+    pnl_stat = f" [ {t.symbol} ] [ {pnl} ({pnl_pct}) ]"
     client.nextId()
 
-    pnl_pct = 0.0
     # Wait for status
     while True:
         client.reqPnLSingle(
@@ -101,11 +122,15 @@ def getPnlSingle(t: Trade, client: IBClient, account: str) -> float:
         try:
             msg = qu_pnlsingle.get(timeout=5)
             # pnl = msg["unrealizedPnL"]
-            value = msg["value"]
+            pnl = msg["value"]
             logger.info(f"[Algo] UnrealizedPnL: ${msg['unrealizedPnL']} ")
             logger.info(f"[Algo] Position Value: ${msg['value']} ")
-            pnl_pct = (value - (t.avgFillPrice * t.position)) / value * 100
+            pnl_pct = (pnl - (t.avgFillPrice * t.position)) / pnl * 100
             logger.info(f"Unrealize PNL pct: {pnl_pct}")
+
+            console.print(req)
+            console.print(heading)
+            console.print(status)
             break
 
         except queue.Empty:
