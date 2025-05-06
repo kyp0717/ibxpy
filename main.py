@@ -55,7 +55,7 @@ cs.print(msg)
 
 algo.enter_trade(t, client)
 algo.check_order(t, client)
-# algo.exit_trade(t, client)
+algo.exit_trade(t, client)
 
 
 s = cs.input("Shutdown Algo? (y/n)")

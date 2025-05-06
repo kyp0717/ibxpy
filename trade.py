@@ -29,7 +29,8 @@ class Trade:
         self.size: int = 0
         self.position = position
         self.stoploss: float = 0.0
-        self.avgFillPrice: float = 0.0
+        self.entry_price: float = 0.0
+        self.exit_price: float = 0.0
         self.conid = None
 
     def price_change(self, last) -> PriceChange:
