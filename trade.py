@@ -33,20 +33,9 @@ class Trade:
         self.entry_price: float = 0.0
         self.exit_price: float = 0.0
         self.conid = None
-        self.unreal_pnlval = 0.0
-        self.unreal_pnlpct = 0.0
+        self.unreal_pnlval: float = 0.0
+        self.unreal_pnlpct: float = 0.0
         self.console = console
-
-    def price_change(self, last) -> PriceChange:
-        v1 = self.trade_entry - self.last
-        v2 = v1 / last * 100
-        self.priceChange.val = v1
-        self.priceChange.pct = v2
-
-    def price_change_pct(self, price) -> float:
-        v1 = self.trade_entry - self.last
-        v2 = v1 / price * 100
-        return v2
 
     def define_contract(self) -> Contract:
         contract = Contract()

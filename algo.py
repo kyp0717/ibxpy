@@ -134,8 +134,10 @@ def exit_trade(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 4:
                 continue
             # TODO - check correct tick type (looking for bid price)
-            t.unreal_pnlval = t.position * (t.entry_price - msg["price"])
-            t.unreal_pnlpct = (t.entry_price - msg["price"]) / msg["price"]
+            x = msg["price"] - t.entry_price
+            console.print("price change: " + str(x))
+            t.unreal_pnlval = t.position * (msg["price"] - t.entry_price)
+            t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
             t.display()
             sell = t.console.input(
