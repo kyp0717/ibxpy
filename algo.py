@@ -15,16 +15,6 @@ pnl_theme = Theme({"gain": "green", "loss": "red"})
 console = Console(theme=pnl_theme)
 
 
-def print_status(t: Trade, client: IBClient, pnl, pnl_pct):
-    req = f" [ reqid: {client.order_id} ]"
-    heading = f" [ {t.symbol} ] [  Pos  ] [  PnL (%) ]"
-    status = f" [ Long ] [   {t.position} ] [   {pnl} {pnl_pct} ]"
-
-    console.print(req)
-    console.print(heading)
-    console.print(status)
-
-
 def enter_trade(t: Trade, client: IBClient):
     # check for existing marketdata stream
     # if client.order_id in client.active_streams:
@@ -33,15 +23,13 @@ def enter_trade(t: Trade, client: IBClient):
     #     return None
     # Send request
 
-    pnl = 0.0
-    pnl_pct = 0.0
-    prompt = f" [ {t.symbol} ] [ {pnl} ({pnl_pct}) ]"
+    t.display()
     client.nextId()
-    req = f" [ reqid: {client.order_id} ]"
-    console.print(prompt + req + " new reqid created")
+    req = f" reqid: {client.order_id} >>>"
+    t.console.print(req + " new reqid created")
     ctx = t.define_contract()
     # Wait for status
-    console.print(prompt + req + " getting contract id from tws")
+    t.console.print(req + " getting contract id from tws")
     client.reqContractDetails(client.order_id, contract=ctx)
     time.sleep(1)
     try:
@@ -55,13 +43,12 @@ def enter_trade(t: Trade, client: IBClient):
         sys.exit(1)
 
     client.nextId()
-    req = f" [ reqid: {client.order_id} ]"
-    console.print(prompt)
-    console.print(req + " getting request id")
+    t.display()
+    t.console.print(req + " getting request id")
     ordfn = t.create_order_fn(reqId=client.order_id, action="BUY")
     client.reqMktData(client.order_id, ctx, "", False, False, [])
 
-    console.print("--------")
+    console.print("  -------------")
     # Wait for status
     while True:
         try:
@@ -69,13 +56,12 @@ def enter_trade(t: Trade, client: IBClient):
             time_diff = datetime.datetime.now() - msg["time"]
             if time_diff.total_seconds() > 4:
                 continue
-            console.print(prompt)
-            buy = console.input(f" >>> {req} Buy at {msg['price']} (y/n) ?")
+            t.display()
+            buy = t.console.input(f" {req} Buy at {msg['price']} (y/n) ?")
             if buy == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
-                req = f" [ order id: {client.order_id} ]"
-                console.print(f" >>> {req} order sent ")
+                t.console.print(f" {req} order sent ")
                 break
             else:
                 continue
@@ -85,28 +71,26 @@ def enter_trade(t: Trade, client: IBClient):
 
 
 def check_order(t: Trade, client: IBClient):
+    req = f" reqid: {client.order_id} >>>"
     while True:
         try:
             msg = qu_orderstatus.get(timeout=5)
-            req = f" [ order id: {client.order_id} ]"
-            console.print(f" >>> {req} Status: {msg['status']} ")
+            t.console.print(f" {req} Status: {msg['status']} ")
             if msg["status"] == "Filled":
-                console.print(f" >>> {req} Status: {msg['status']} ")
-                console.print(f" >>> {req} Entry Price: {msg['avgFillPrice']} ")
+                t.console.print(f" {req} Status: {msg['status']} ")
+                t.console.print(f" {req} Entry Price: {msg['avgFillPrice']} ")
                 t.entry_price = msg["avgFillPrice"]
                 break
             else:
                 continue
         except queue.Empty:
-            console.print(f" >>> {req} Status: Waiting fo fill order ")
+            t.console.print(f" {req} Status: Waiting fo fill order ")
             continue
 
 
 def getPnlSingle(t: Trade, client: IBClient, account: str) -> (float, float):
-    pnl = 0
-    pnl_pct = 0.0
+    req = f" reqid: {client.order_id} >>>"
     client.nextId()
-
     # Wait for status
     while True:
         client.reqPnLSingle(
@@ -119,16 +103,12 @@ def getPnlSingle(t: Trade, client: IBClient, account: str) -> (float, float):
             # pnl = msg["unrealizedPnL"]
             pnl = msg["value"]
             pnl_pct = (pnl - (t.avgFillPrice * t.position)) / pnl * 100
-            logger.info(f"Unrealize PNL pct: {pnl_pct}")
-
-            prompt = f" [ {t.symbol} ] [ {pnl} ({pnl_pct}) ]"
-            req = f" [ reqid: {client.order_id} ]"
-            console.print(prompt)
-            console.print(req)
+            t.display()
+            t.console.print(req)
             break
 
         except queue.Empty:
-            console.print(f" >>> {req} Status: Waiting pnl data ")
+            console.print(f" {req} Status: Waiting pnl data ")
             continue
 
     return pnl_pct
@@ -137,6 +117,7 @@ def getPnlSingle(t: Trade, client: IBClient, account: str) -> (float, float):
 def exit_trade(t: Trade, client: IBClient):
     # Send request
     client.nextId()
+    req = f" reqid: {client.order_id} >>>"
     ctx = t.define_contract()
     ordfn = t.create_order_fn(reqId=client.order_id, action="SELL")
 
@@ -153,13 +134,13 @@ def exit_trade(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 4:
                 continue
             # TODO - check correct tick type (looking for bid price)
-            unrealpnl_val = t.position * (t.entry_price - msg["price"])
-            unrealpnl_pct = (t.entry_price - msg["price"]) / msg["price"]
+            t.unreal_pnlval = t.position * (t.entry_price - msg["price"])
+            t.unreal_pnlpct = (t.entry_price - msg["price"]) / msg["price"]
 
-            prompt = f" [ {t.symbol} ] [ ${unrealpnl_val:.2f} ({unrealpnl_pct:.3f}%) ]"
-            req = f" [ reqid: {client.order_id} ]"
-            console.print(prompt)
-            sell = console.input(req + f" Sell {t.symbol} at {msg['price']} (y/n)? ")
+            t.display()
+            sell = t.console.input(
+                f" {req} + Sell {t.symbol} at {msg['price']} (y/n)? "
+            )
             if sell == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)

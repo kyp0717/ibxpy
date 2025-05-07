@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from ibapi.client import Contract, Order
+from rich.console import Console
 
 
 class TradeSignal(Enum):
@@ -24,7 +25,7 @@ class TrackId:
 
 
 class Trade:
-    def __init__(self, symbol, position: int):
+    def __init__(self, symbol, position: int, console: Console):
         self.symbol: str = symbol
         self.size: int = 0
         self.position = position
@@ -32,6 +33,9 @@ class Trade:
         self.entry_price: float = 0.0
         self.exit_price: float = 0.0
         self.conid = None
+        self.unreal_pnlval = 0.0
+        self.unreal_pnlpct = 0.0
+        self.console = console
 
     def price_change(self, last) -> PriceChange:
         v1 = self.trade_entry - self.last
@@ -69,3 +73,18 @@ class Trade:
             return order
 
         return create_order
+
+    def display(self):
+        # self.console.clear()
+
+        heading = "  [yellow underline]Trade [/yellow underline] | [yellow underline]Unreal PnL (%) [/yellow underline]"
+        if self.unreal_pnlval > 0:
+            pnl = f"  {self.symbol}   | [green]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/green] "
+        elif self.unreal_pnlval < 0:
+            pnl = f"  {self.symbol}   | [red]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/red] "
+        else:
+            pnl = f"  {self.symbol}   | [blue]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/blue] "
+
+        self.console.print(heading)
+        self.console.print(pnl)
+        self.console.print("  -----------------------")
