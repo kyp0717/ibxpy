@@ -24,7 +24,10 @@ class IBClient(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.order_id = None
-        self.active_streams = set()
+        self.order_filled_qty = {}
+        self.order_remaining_qty = {}
+        self.order_status = {}
+        self.bid_price = 0.0
 
     def nextValidId(self, orderId):
         logger.info(f"[IB] Next valid order ID: {orderId}")
@@ -57,6 +60,10 @@ class IBClient(EWrapper, EClient):
         whyHeld,
         mktCapPrice,
     ):
+        self.order_id = orderId
+        self.order_status = status
+        self.order_filled_qty = filled
+        self.order_remaining_qty = remaining
         msg = {
             "orderId": orderId,
             "status": status,
@@ -127,6 +134,20 @@ class IBClient(EWrapper, EClient):
     ):
         msg = {"reqId": reqId, "unrealizedPnL": unrealizedPnL, "value": value}
         qu_pnlsingle.put(msg)
+
+    def sell_remaining(self, orderId):
+        self.reqOpenOrders()
+        order = self.Order()
+        order.action = "SELL"
+        order.orderType = "LMT"
+        order.totalQuantity = 100
+        order.lmtPrice = 200  # Higher than market to delay fill
+
+        self.order_filled_qty[orderId] = 0
+        self.order_remaining_qty[orderId] = order.totalQuantity
+        self.order_status[orderId] = "Submitted"
+
+        self.placeOrder(orderId, self.contract, order)
 
 
 def start_ib_client(app):
