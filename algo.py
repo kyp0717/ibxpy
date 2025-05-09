@@ -127,9 +127,7 @@ def exit_trade(t: Trade, client: IBClient):
             t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
             t.display()
-            sell = t.console.input(
-                f" {req} + Sell {t.symbol} at {msg['price']} (y/n)? "
-            )
+            sell = t.console.input(f" {req} Sell {t.symbol} at {msg['price']} (y/n)? ")
             if sell == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)

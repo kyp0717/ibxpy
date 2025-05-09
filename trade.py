@@ -65,15 +65,26 @@ class Trade:
 
     def display(self):
         # self.console.clear()
+        # Define a fixed-width format for alignment
 
-        heading = "  [yellow underline]Trade [/yellow underline] | [yellow underline]Unreal PnL (%) [/yellow underline]"
+        heading1 = "  [yellow underline]Trade [/yellow underline] |"
+        heading2 = " [yellow underline]Unreal PnL (%) [/yellow underline]  |"
+        heading3 = " [yellow underline]Entry [/yellow underline] |"
+        heading4 = " [yellow underline]Exit  [/yellow underline] "
+
+        pnl = (
+            f" [blue]${self.unreal_pnlval:<6.2f} ({self.unreal_pnlpct:<6.2f}%)[/blue] |"
+        )
         if self.unreal_pnlval > 0:
-            pnl = f"  {self.symbol}   | [green]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/green] "
+            pnl = f" [green]${self.unreal_pnlval:<6.2f} ({self.unreal_pnlpct:<6.2f}%)[/green] |"
         elif self.unreal_pnlval < 0:
-            pnl = f"  {self.symbol}   | [red]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/red] "
-        else:
-            pnl = f"  {self.symbol}   | [blue]${self.unreal_pnlval:.2f} ({self.unreal_pnlpct:.2f}%)[/blue] "
+            pnl = f"  [red]${self.unreal_pnlval:<5.2f} ({self.unreal_pnlpct:<5.2f}%)[/red] |"
 
-        self.console.print(heading)
-        self.console.print(pnl)
+        entry_price = f" {self.entry_price:<6.2f} |"
+        exit_price = f" {self.entry_price:<6.2f} "
+
+        output = f"  {self.symbol:<4}   |" + pnl + entry_price + exit_price
+
+        self.console.print(heading1 + heading2 + heading3 + heading4)
+        self.console.print(output)
         self.console.print("  -----------------------")
