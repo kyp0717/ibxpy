@@ -1,44 +1,36 @@
-2025-05-07 09:12:19.525 | INFO     | __main__:<module>:28 -  [ AAPL ] IB client instantiated
-2025-05-07 09:12:19.529 | INFO     | __main__:<module>:40 -  [ AAPL ] Starting ib client thread
-2025-05-07 09:12:19.531 | INFO     | ib_client:nextValidId:30 - [IB] Next valid order ID: 37
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:usfarm.nj
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:usfarm.nj
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:cashfarm
-2025-05-07 09:12:19.572 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:cashfarm
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:usfarm
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:usfarm
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:euhmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:euhmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:cashhmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:cashhmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:fundfarm
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:fundfarm
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:ushmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:ushmds
-2025-05-07 09:12:19.573 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.574 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
-2025-05-07 09:12:19.574 | ERROR    | ib_client:error:38 - ErrorCode: 2158, ErrorString: Sec-def data farm connection is OK:secdefnj
-2025-05-07 09:12:19.574 | ERROR    | ib_client:error:39 - ErrorString: Sec-def data farm connection is OK:secdefnj
-2025-05-07 09:12:19.574 | ERROR    | ib_client:error:40 - Order Reject:  
-2025-05-07 09:12:19.630 | INFO     | __main__:<module>:53 -  [ AAPL ] Starting algo ...
-2025-05-07 09:12:21.764 | INFO     | ib_client:orderStatus:68 - {'orderId': 39, 'status': 'Submitted', 'filled': Decimal('0'), 'remaining': Decimal('10'), 'avgFillPrice': 0.0}
-2025-05-07 09:12:23.006 | INFO     | ib_client:orderStatus:68 - {'orderId': 39, 'status': 'Submitted', 'filled': Decimal('0'), 'remaining': Decimal('10'), 'avgFillPrice': 0.0}
-2025-05-07 09:12:25.010 | INFO     | ib_client:orderStatus:68 - {'orderId': 39, 'status': 'Filled', 'filled': Decimal('10'), 'remaining': Decimal('0'), 'avgFillPrice': 199.7}
-2025-05-07 09:12:25.011 | INFO     | ib_client:orderStatus:68 - {'orderId': 39, 'status': 'Filled', 'filled': Decimal('10'), 'remaining': Decimal('0'), 'avgFillPrice': 199.7}
-2025-05-07 09:12:30.011 | INFO     | algo:exit_trade:154 - [Algo] Waiting for bid price on AAPL...
-2025-05-07 09:12:35.888 | INFO     | ib_client:orderStatus:68 - {'orderId': 40, 'status': 'Submitted', 'filled': Decimal('0'), 'remaining': Decimal('10'), 'avgFillPrice': 0.0}
-2025-05-07 09:12:35.990 | INFO     | ib_client:orderStatus:68 - {'orderId': 40, 'status': 'Filled', 'filled': Decimal('10'), 'remaining': Decimal('0'), 'avgFillPrice': 199.55}
-2025-05-07 09:12:35.992 | INFO     | ib_client:orderStatus:68 - {'orderId': 40, 'status': 'Filled', 'filled': Decimal('10'), 'remaining': Decimal('0'), 'avgFillPrice': 199.55}
+2025-05-09 07:59:48.877 | INFO     | __main__:<module>:28 -  [ AAPL ] IB client instantiated
+2025-05-09 07:59:48.881 | INFO     | __main__:<module>:40 -  [ AAPL ] Starting ib client thread
+2025-05-09 07:59:48.884 | INFO     | ib_client:nextValidId:30 - [IB] Next valid order ID: 41
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:usfarm.nj
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:usfarm.nj
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:cashfarm
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:cashfarm
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.925 | ERROR    | ib_client:error:38 - ErrorCode: 2104, ErrorString: Market data farm connection is OK:usfarm
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: Market data farm connection is OK:usfarm
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:euhmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:euhmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:cashhmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:cashhmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:fundfarm
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:fundfarm
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:38 - ErrorCode: 2106, ErrorString: HMDS data farm connection is OK:ushmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: HMDS data farm connection is OK:ushmds
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:37 -  --- ReqId: -1 --- 
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:38 - ErrorCode: 2158, ErrorString: Sec-def data farm connection is OK:secdefnj
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:39 - ErrorString: Sec-def data farm connection is OK:secdefnj
+2025-05-09 07:59:48.926 | ERROR    | ib_client:error:40 - Order Reject:  
+2025-05-09 07:59:48.982 | INFO     | __main__:<module>:53 -  [ AAPL ] Starting algo ...

@@ -5,14 +5,14 @@ import sys
 import time
 
 from loguru import logger
-from rich.console import Console
-from rich.theme import Theme
 
+# from rich.console import Console
+# from rich.theme import Theme
 from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus, qu_pnlsingle
 from trade import Trade
 
-pnl_theme = Theme({"gain": "green", "loss": "red"})
-console = Console(theme=pnl_theme)
+# pnl_theme = Theme({"gain": "green", "loss": "red"})
+# console = Console(theme=pnl_theme)
 
 
 def enter_trade(t: Trade, client: IBClient):
@@ -48,7 +48,7 @@ def enter_trade(t: Trade, client: IBClient):
     ordfn = t.create_order_fn(reqId=client.order_id, action="BUY")
     client.reqMktData(client.order_id, ctx, "", False, False, [])
 
-    console.print("  -------------")
+    t.console.print("  -------------")
     # Wait for status
     while True:
         try:
@@ -108,7 +108,7 @@ def getPnlSingle(t: Trade, client: IBClient, account: str) -> (float, float):
             break
 
         except queue.Empty:
-            console.print(f" {req} Status: Waiting pnl data ")
+            t.console.print(f" {req} Status: Waiting pnl data ")
             continue
 
     return pnl_pct
@@ -135,7 +135,7 @@ def exit_trade(t: Trade, client: IBClient):
                 continue
             # TODO - check correct tick type (looking for bid price)
             x = msg["price"] - t.entry_price
-            console.print("price change: " + str(x))
+            t.console.print("price change: " + str(x))
             t.unreal_pnlval = t.position * (msg["price"] - t.entry_price)
             t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
