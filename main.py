@@ -20,11 +20,11 @@ logger.add("./test.log", mode="w", level="TRACE")
 
 cs = Console()
 # define the asset to trade
-t = Trade(symbol="AAPL", position=10)
+t = Trade(symbol="AAPL", position=10, console=cs)
 paper_account = "DU1591287"
 # Instantiate app
 # this must be done first to create queue to be imported
-msg = f"[ {t.symbol} ] IB client instantiated"
+msg = f" [ {t.symbol} ] IB client instantiated"
 logger.info(msg)
 cs.clear()
 cs.print(msg)
@@ -36,7 +36,7 @@ client.connect("127.0.0.1", 7500, clientId=1001)
 client.reqMarketDataType(3)
 # Start IB API client in background
 
-msg = f"[ {t.symbol} ] Starting ib client thread"
+msg = f" [ {t.symbol} ] Starting ib client thread"
 logger.info(msg)
 cs.print(msg)
 # ibclient_thread = threading.Thread(target=start_ib_client, args=(client,), daemon=True)
@@ -49,7 +49,7 @@ while client.order_id is None:
 
 
 # Start the trading algorithm in main thread
-msg = f"[ {t.symbol} ] Starting algo ..."
+msg = f" [ {t.symbol} ] Starting algo ..."
 logger.info(msg)
 cs.print(msg)
 
