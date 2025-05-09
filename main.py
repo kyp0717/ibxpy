@@ -20,7 +20,7 @@ logger.add("./test.log", mode="w", level="TRACE")
 
 cs = Console()
 # define the asset to trade
-t = Trade(symbol="AAPL", position=10)
+t = Trade(symbol="AAPL", position=10, console=cs)
 paper_account = "DU1591287"
 # Instantiate app
 # this must be done first to create queue to be imported
@@ -55,7 +55,7 @@ cs.print(msg)
 
 algo.enter_trade(t, client)
 algo.check_order(t, client)
-# algo.exit_trade(t, client)
+algo.exit_trade(t, client)
 
 
 s = cs.input("Shutdown Algo? (y/n)")
