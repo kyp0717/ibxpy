@@ -12,16 +12,13 @@ from loguru import logger
 from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus
 from trade import Trade
 
-# pnl_theme = Theme({"gain": "green", "loss": "red"})
-# console = Console(theme=pnl_theme)
-
 
 class OrderType(IntEnum):
     BUY = 1
     SELL = 2
 
 
-def enter_trade(t: Trade, client: IBClient):
+def enter(t: Trade, client: IBClient):
     # check for existing marketdata stream
     # if client.order_id in client.active_streams:
     #     client.cancel_market_data(client.order_id)
@@ -51,7 +48,7 @@ def enter_trade(t: Trade, client: IBClient):
     client.nextId()
     t.display()
     t.console.print(req + " getting request id")
-    ordfn = t.create_order_fn(reqId=client.order_id, action="BUY")
+    ordfn = t.create_order_fn(reqId=client.order_id, action="BUY", ordertype="LMT")
     client.reqMktData(client.order_id, ctx, "", False, False, [])
 
     t.console.print("  -------------")
@@ -76,7 +73,7 @@ def enter_trade(t: Trade, client: IBClient):
             continue
 
 
-def check_order(t: Trade, client: IBClient):
+def check_buy_order(t: Trade, client: IBClient):
     # allow 5 attempts before cancelling order
     x = 0
     req = f" reqid: {client.order_id} >>>"
@@ -101,13 +98,61 @@ def check_order(t: Trade, client: IBClient):
             x = x + 1
 
 
-def exit_trade(t: Trade, client: IBClient):
+def check_sell_order(t: Trade, client: IBClient, bid_price: float):
+    # allow 5 attempts before cancelling order
+    x = 0
+    req = f" reqid: {client.order_id} >>>"
+    while True:
+        try:
+            t.console.print(f" {req} Attemping to sell try number {x} ")
+            msg = qu_bid.get(timeout=5)
+            if x == 6:
+                t.console.print(f" {req} Liquidating ... ")
+                liquidate(t, client, bid_price)
+
+                # send cancel order
+            msg = qu_orderstatus.get(timeout=5)
+            t.console.print(f" {req} Status: {msg['status']} ")
+            if msg["status"] == "Filled":
+                t.console.print(f" {req} Status: {msg['status']} ")
+                t.console.print(f" {req} Exit Price: {msg['avgFillPrice']} ")
+                t.exit_price = msg["avgFillPrice"]
+                break
+            else:
+                # if order is not filled, wait 1 second
+                time.sleep(1)
+                x = x + 1
+                continue
+        except queue.Empty:
+            t.console.print(f" {req} Status: Waiting fo fill order ")
+            time.sleep(1)
+            x = x + 1
+            continue
+
+
+def liquidate(t: Trade, client: IBClient, price: float):
+    # Send request
+    req = f" reqid: {client.order_id} >>>"
+    ctx = t.define_contract()
+    ordfn = t.create_order_fn(reqId=client.order_id, action="SELL", ordertype="MKT")
+    ord = ordfn(price)
+    client.placeOrder(client.order_id, ctx, ord)
+    t.console.print(f" {req} Liquidate {t.symbol} at {price} ")
+
+
+def exit(t: Trade, client: IBClient, price: float):
     # Send request
     client.nextId()
     req = f" reqid: {client.order_id} >>>"
     ctx = t.define_contract()
-    ordfn = t.create_order_fn(reqId=client.order_id, action="SELL")
+    ordfn = t.create_order_fn(reqId=client.order_id, action="SELL", ordertype="LMT")
+    ord = ordfn(price)
+    client.placeOrder(client.order_id, ctx, ord)
+    t.console.print(f" {req} Order submitted - Sell {t.symbol} at {price} ")
+    check_sell_order(t, client)
 
+
+def follow(t: Trade, client: IBClient):
     # Wait for status
     while True:
         try:
@@ -123,15 +168,13 @@ def exit_trade(t: Trade, client: IBClient):
             # TODO - check correct tick type (looking for bid price)
             x = msg["price"] - t.entry_price
             t.console.print("price change: " + str(x))
-            t.unreal_pnlval = t.position * (msg["price"] - t.entry_price)
-            t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
+            unreal_pnlval = t.position * (msg["price"] - t.entry_price)
+            unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
-            t.display()
-            sell = t.console.input(f" {req} Sell {t.symbol} at {msg['price']} (y/n)? ")
+            t.display(unreal_pnlval, unreal_pnlpct)
+            sell = t.console.input(f" >>> Current Bid at {msg['price']} - Sell (y/n)? ")
             if sell == "y":
-                ord = ordfn(msg["price"])
-                client.placeOrder(client.order_id, ctx, ord)
-                check_order(t, client)
+                exit(t, client, msg["price"])
                 break
             else:
                 continue

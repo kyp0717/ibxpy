@@ -49,14 +49,14 @@ class Trade:
 
     # order is define in the tickPrice function
     # price dependency
-    def create_order_fn(self, reqId: int, action: str):
+    def create_order_fn(self, reqId: int, action: str, ordertype: str):
         order = Order()
 
         def create_order(lmtprice: float):
             order.symbol = self.symbol
             order.orderId = reqId
             order.action = action
-            order.orderType = "LMT"
+            order.orderType = ordertype
             order.lmtPrice = lmtprice
             order.totalQuantity = self.position
             order.outsideRth = True
@@ -64,7 +64,7 @@ class Trade:
 
         return create_order
 
-    def display(self):
+    def display(self, unrealval: float, unrealpct: float):
         # self.console.clear()
         # Define a fixed-width format for alignment
 
@@ -72,24 +72,24 @@ class Trade:
             f"[yellow underline] ******* {self.symbol} ******* [/yellow underline] |"
         )
 
-        pnlval = Text(f"${self.unreal_pnlval:.2f}")
-        pnlpct = Text(f"{self.unreal_pnlpct:.3f}")
-        if pnlval == 0:
-            pnlval.stylize("blue")
-            pnlpct.stylize("blue")
-        elif pnlval > 0:
-            pnlval.stylize("green")
-            pnlpct.stylize("green")
+        unrealval = Text(f"${self.unreal_pnlval:.2f}")
+        unrealpct = Text(f"{self.unreal_pnlpct:.3f}")
+        if unrealval == 0:
+            unrealval.stylize("blue")
+            unrealpct.stylize("blue")
+        elif unrealval > 0:
+            unrealval.stylize("green")
+            unrealpct.stylize("green")
         else:
-            pnlval.stylize("red")
-            pnlpct.stylize("green")
+            unrealval.stylize("red")
+            unrealpct.stylize("green")
 
         entry_price = f"${self.entry_price:.2f} |"
         exit_price = f"${self.entry_price:.2f} "
         stop_loss = f"${self.stop_loss:.2f} "
 
         self.console.print(heading)
-        self.console.print(f" PnL (%): {pnlval} ({pnlpct})")
+        self.console.print(f" PnL (%): {unrealval} ({unrealpct})")
         self.console.print(f" Entry//Exit: {entry_price} --- ({exit_price})")
         self.console.print(f" Stop Loss: {stop_loss}")
         self.console.print("  -----------------------")
