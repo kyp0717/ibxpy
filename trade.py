@@ -3,6 +3,7 @@ from enum import Enum
 
 from ibapi.client import Contract, Order
 from rich.console import Console
+from rich.text import Text
 
 
 class TradeSignal(Enum):
@@ -29,7 +30,7 @@ class Trade:
         self.symbol: str = symbol
         self.size: int = 0
         self.position = position
-        self.stoploss: float = 0.0
+        self.stop_loss: float = 0.0
         self.entry_price: float = 0.0
         self.exit_price: float = 0.0
         self.conid = None
@@ -67,24 +68,28 @@ class Trade:
         # self.console.clear()
         # Define a fixed-width format for alignment
 
-        heading1 = "  [yellow underline]Trade [/yellow underline] |"
-        heading2 = " [yellow underline]Unreal PnL (%) [/yellow underline]  |"
-        heading3 = " [yellow underline]Entry [/yellow underline] |"
-        heading4 = " [yellow underline]Exit  [/yellow underline] "
-
-        pnl = (
-            f" [blue]${self.unreal_pnlval:<6.2f} ({self.unreal_pnlpct:<6.2f}%)[/blue] |"
+        heading = (
+            f"[yellow underline] ******* {self.symbol} ******* [/yellow underline] |"
         )
-        if self.unreal_pnlval > 0:
-            pnl = f" [green]${self.unreal_pnlval:<6.2f} ({self.unreal_pnlpct:<6.2f}%)[/green] |"
-        elif self.unreal_pnlval < 0:
-            pnl = f"  [red]${self.unreal_pnlval:<5.2f} ({self.unreal_pnlpct:<5.2f}%)[/red] |"
 
-        entry_price = f" {self.entry_price:<6.2f} |"
-        exit_price = f" {self.entry_price:<6.2f} "
+        pnlval = Text(f"${self.unreal_pnlval:.2f}")
+        pnlpct = Text(f"{self.unreal_pnlpct:.3f}")
+        if pnlval == 0:
+            pnlval.stylize("blue")
+            pnlpct.stylize("blue")
+        elif pnlval > 0:
+            pnlval.stylize("green")
+            pnlpct.stylize("green")
+        else:
+            pnlval.stylize("red")
+            pnlpct.stylize("green")
 
-        output = f"  {self.symbol:<4}   |" + pnl + entry_price + exit_price
+        entry_price = f"${self.entry_price:.2f} |"
+        exit_price = f"${self.entry_price:.2f} "
+        stop_loss = f"${self.stop_loss:.2f} "
 
-        self.console.print(heading1 + heading2 + heading3 + heading4)
-        self.console.print(output)
+        self.console.print(heading)
+        self.console.print(f" PnL (%): {pnlval} ({pnlpct})")
+        self.console.print(f" Entry//Exit: {entry_price} --- ({exit_price})")
+        self.console.print(f" Stop Loss: {stop_loss}")
         self.console.print("  -----------------------")

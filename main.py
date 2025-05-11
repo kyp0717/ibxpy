@@ -7,6 +7,7 @@ import time
 # from ib_worker import start_ib_worker
 from loguru import logger
 from rich.console import Console
+from rich.theme import Theme
 
 import algo
 from ib_client import IBClient
@@ -15,10 +16,11 @@ from trade import Trade
 # import logging
 logger.remove()  # Remove the default
 # logger.add(sys.stderr, level="TRACE", format="{time} | {level} | {message}")
-logger.add("./test.log", mode="w", level="TRACE")
+logger.add("./log/test.log", mode="w", level="TRACE")
 # logger.add(sys.stderr, level="TRACE")
 
-cs = Console()
+pnl_theme = Theme({"profit": "green", "loss": "red"})
+cs = Console(theme=pnl_theme)
 # define the asset to trade
 t = Trade(symbol="AMD", position=10, console=cs)
 paper_account = "DU1591287"
