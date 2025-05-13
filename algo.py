@@ -65,29 +65,35 @@ def enter(t: Trade, client: IBClient):
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
                 t.console.print(f"{req} buy order sent ")
-                break
+                return ord
             else:
                 continue
         except queue.Empty:
-            logger.info(f"[Algo] Waiting for market data for {t.symbol}...")
+            t.console.print(f"{req} Waiting for ask price for {t.symbol}...")
+
             continue
 
 
-def check_buy_order(t: Trade, client: IBClient):
+def check_buy_order(t: Trade, client: IBClient, orderfn):
     # allow 5 attempts before cancelling order
     x = 0
     req = f" reqid: {client.order_id} >>>"
     while True:
         try:
-            if x == 6:
+            msg_ask = qu_ask.get(timeout=5)
+            if x == 4:
                 pass
+                # after 4 tries - cancel order
+                # client.cancelOrder(client.order_id)
+                # t.console.print(f"{req} Order Cancel ")
                 # send cancel order
-            msg = qu_orderstatus.get(timeout=5)
-            t.console.print(f"{req} TWS Status: {msg['status']} ")
-            if msg["status"] == "Filled":
-                t.console.print(f"{req} Status: {msg['status']} ")
-                t.console.print(f"{req} Entry Price: {msg['avgFillPrice']} ")
-                t.entry_price = msg["avgFillPrice"]
+            msg_ordstatus = qu_orderstatus.get(timeout=5)
+            t.console.print(f"{req} TWS Status: {msg_ordstatus['status']} ")
+            t.console.print(f"{req} TWS ReqMktData: {msg_ask['price']} ")
+            if msg_ordstatus["status"] == "Filled":
+                t.console.print(f"{req} Status: {msg_ordstatus['status']} ")
+                t.console.print(f"{req} Entry Price: {msg_ordstatus['avgFillPrice']} ")
+                t.entry_price = msg_ordstatus["avgFillPrice"]
                 t.console.print(f"{req} Moving to next stage - tracking ")
                 break
             else:
@@ -105,20 +111,23 @@ def check_sell_order(t: Trade, client: IBClient, bid_price: float):
     req = f" reqid: {client.order_id} >>>"
     while True:
         try:
+            t.display()
             t.console.print(f"{req} Attemping to sell try number {x} ")
-            msg = qu_bid.get(timeout=5)
+            msg_bid = qu_bid.get(timeout=5)
+            t.console.print(f" [TWS Bid Thread] >>> Current bid {msg_bid['price']} ")
             if x == 6:
                 t.console.print(f"{req} Liquidating ... ")
-                liquidate(t, client, bid_price)
+                liquidate(t, client, msg_bid["price"])
                 break
 
                 # send cancel order
-            msg = qu_orderstatus.get(timeout=5)
-            t.console.print(f"{req} Status: {msg['status']} ")
-            if msg["status"] == "Filled":
-                t.console.print(f"{req} Status: {msg['status']} ")
-                t.console.print(f"{req} Exit Price: {msg['avgFillPrice']} ")
-                t.exit_price = msg["avgFillPrice"]
+            msg_ordstatus = qu_orderstatus.get(timeout=5)
+            t.console.print(f"{req} Order Status: {msg_ordstatus['status']} ")
+            if msg_ordstatus["status"] == "Filled":
+                t.console.print(f"{req} whole msg: {msg_ordstatus} ")
+                t.console.print(f"{req} Exit Price: {msg_ordstatus['avgFillPrice']} ")
+                t.exit_price = msg_ordstatus["avgFillPrice"]
+                t.display()
                 break
             else:
                 # if order is not filled, wait 1 second
@@ -164,12 +173,12 @@ def track(t: Trade, client: IBClient):
             # ensure the the price in queue is recent
 
             msg = qu_bid.get(timeout=5)
-            time_diff = datetime.datetime.now() - msg["time"]
-            if time_diff.total_seconds() > 4:
-                continue
+            # time_diff = datetime.datetime.now() - msg["time"]
+            # if time_diff.total_seconds() > 4:
+            #     continue
             # TODO - check correct tick type (looking for bid price)
             x = msg["price"] - t.entry_price
-            t.console.print(f" >>> price change: {x:.2f}")
+            t.console.print(f">>> price change: {x:.2f}")
             t.unreal_pnlval = t.position * (msg["price"] - t.entry_price)
             t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
@@ -181,6 +190,6 @@ def track(t: Trade, client: IBClient):
             else:
                 continue
         except queue.Empty:
-            req = f"reqid: {client.order_id} >>>"
-            t.console.print(f"{req} Order Status Queue is empty ")
+            req = f" reqid: {client.order_id} >>>"
+            t.console.print(f"{req} Bid Order Status Queue is empty ")
             continue

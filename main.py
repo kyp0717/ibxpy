@@ -16,14 +16,15 @@ from trade import Trade
 # import logging
 logger.remove()  # Remove the default
 # logger.add(sys.stderr, level="TRACE", format="{time} | {level} | {message}")
-logger.add("./log/test.log", mode="w", level="TRACE")
+logger.add("./test.log", mode="w", level="TRACE")
 # logger.add(sys.stderr, level="TRACE")
 
 pnl_theme = Theme({"profit": "green", "loss": "red"})
 cs = Console(theme=pnl_theme)
 # define the asset to trade
-t = Trade(symbol="NVDA", position=10, console=cs)
+t = Trade(symbol="IBM", position=10, console=cs)
 paper_account = "DU1591287"
+# real_account = "DU1591287"
 # Instantiate app
 # this must be done first to create queue to be imported
 msg = f" [ {t.symbol} ] IB client instantiated"
@@ -55,8 +56,8 @@ msg = f" [ {t.symbol} ] Starting algo ..."
 logger.info(msg)
 cs.print(msg)
 
-algo.enter(t, client)
-algo.check_buy_order(t, client)
+orderfn = algo.enter(t, client)
+algo.check_buy_order(t, client, orderfn)
 algo.track(t, client)
 
 
