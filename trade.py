@@ -64,32 +64,35 @@ class Trade:
 
         return create_order
 
-    def display(self, unrealval: float, unrealpct: float):
-        # self.console.clear()
+    def display(self):
+        self.console.clear()
         # Define a fixed-width format for alignment
 
-        heading = (
-            f"[yellow underline] ******* {self.symbol} ******* [/yellow underline] |"
-        )
-
+        heading = f"[yellow] ********* {self.symbol} ********* [/yellow] "
         unrealval = Text(f"${self.unreal_pnlval:.2f}")
-        unrealpct = Text(f"{self.unreal_pnlpct:.3f}")
-        if unrealval == 0:
+        unrealpct = Text(f"{self.unreal_pnlpct * 100:.2f}%")
+        if self.unreal_pnlval == 0:
             unrealval.stylize("blue")
             unrealpct.stylize("blue")
-        elif unrealval > 0:
+            pnl = f" PnL (%): {unrealval} ({unrealpct}) "
+        elif self.unreal_pnlval > 0:
+            heading = f"[green] ********* {self.symbol} ********* [/green] "
+            pnl = f"[green] PnL (%): {unrealval} ({unrealpct}) [/green]"
             unrealval.stylize("green")
             unrealpct.stylize("green")
         else:
+            heading = f"[red] ********* {self.symbol} ********* [/red] "
+            pnl = f"[red] PnL (%): {unrealval} ({unrealpct}) [/red]"
             unrealval.stylize("red")
-            unrealpct.stylize("green")
+            unrealpct.stylize("red")
 
-        entry_price = f"${self.entry_price:.2f} |"
-        exit_price = f"${self.entry_price:.2f} "
+        entry_price = f"${self.entry_price:.2f} "
+        exit_price = f"${self.exit_price:.2f} "
         stop_loss = f"${self.stop_loss:.2f} "
 
         self.console.print(heading)
-        self.console.print(f" PnL (%): {unrealval} ({unrealpct})")
-        self.console.print(f" Entry//Exit: {entry_price} --- ({exit_price})")
+        self.console.print(pnl)
+        self.console.print(f" Entry: {entry_price} ")
+        self.console.print(f" Exit: {exit_price} ")
         self.console.print(f" Stop Loss: {stop_loss}")
-        self.console.print("  -----------------------")
+        self.console.print(" -----------------------")

@@ -22,7 +22,7 @@ logger.add("./log/test.log", mode="w", level="TRACE")
 pnl_theme = Theme({"profit": "green", "loss": "red"})
 cs = Console(theme=pnl_theme)
 # define the asset to trade
-t = Trade(symbol="AMD", position=10, console=cs)
+t = Trade(symbol="NVDA", position=10, console=cs)
 paper_account = "DU1591287"
 # Instantiate app
 # this must be done first to create queue to be imported
@@ -55,9 +55,9 @@ msg = f" [ {t.symbol} ] Starting algo ..."
 logger.info(msg)
 cs.print(msg)
 
-algo.enter_trade(t, client)
-algo.check_order(t, client)
-algo.exit_trade(t, client)
+algo.enter(t, client)
+algo.check_buy_order(t, client)
+algo.track(t, client)
 
 
 s = cs.input("Shutdown Algo? (y/n)")
