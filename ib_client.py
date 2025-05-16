@@ -6,6 +6,7 @@ import queue
 from ibapi.client import EClient
 from ibapi.wrapper import ContractDetails, EWrapper
 from loguru import logger
+from rich.console import Console
 
 # use to pass msg btw algo module to IB App
 algo_request = queue.Queue()
@@ -18,6 +19,7 @@ qu_bid = queue.Queue()
 qu_orderstatus = queue.Queue()
 qu_pnl = queue.Queue()
 qu_pnlsingle = queue.Queue()
+console = Console()
 
 
 class IBClient(EWrapper, EClient):

@@ -57,7 +57,7 @@ def enter(t: Trade, client: IBClient):
         try:
             msg = qu_ask.get(timeout=5)
             time_diff = datetime.datetime.now() - msg["time"]
-            if time_diff.total_seconds() > 4:
+            if time_diff.total_seconds() > 2:
                 continue
             t.display()
             buy = t.console.input(f"{req} Buy at {msg['price']} (y/n) ?")
@@ -65,13 +65,13 @@ def enter(t: Trade, client: IBClient):
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
                 t.console.print(f"{req} buy order sent ")
-                return ord
+                # return ord
             else:
                 continue
         except queue.Empty:
             t.console.print(f"{req} Waiting for ask price for {t.symbol}...")
-
             continue
+        time.sleep(1)
 
 
 def check_buy_order(t: Trade, client: IBClient, orderfn):

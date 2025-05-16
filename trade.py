@@ -96,3 +96,11 @@ class Trade:
         self.console.print(f" Exit: {exit_price} ")
         self.console.print(f" Stop Loss: {stop_loss}")
         self.console.print(" -----------------------")
+
+    def display2(self):
+        heading1 = f"[yellow] *********** {self.symbol} ********* [/yellow] "
+        entry_head = f"[orange underline] {'Entry':<6} [/orange underline] "
+        hold_head = f"[orange underline] {'Hold':<6} [/orange underline] "
+        exit_head = f"[orange underline] {'Exit':<6} [/orange underline] "
+        self.console.print(heading1)
+        self.console.print(entry_head + hold_head + exit_head)
