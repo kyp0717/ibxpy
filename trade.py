@@ -59,13 +59,13 @@ class Trade:
             order.orderType = ordertype
             order.lmtPrice = lmtprice
             order.totalQuantity = self.position
-            order.outsideRth = True
+            order.outsideRth = False
             return order
 
         return create_order
 
     def display(self):
-        self.console.clear()
+        # self.console.clear()
         # Define a fixed-width format for alignment
 
         heading = f"[yellow] ********* {self.symbol} ********* [/yellow] "

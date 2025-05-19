@@ -17,10 +17,18 @@ logger.remove()  # Remove the default
 logger.add("test.log", mode="w", level="TRACE")
 # logger.add(sys.stderr, level="TRACE")
 
+## Must instantiate the client first because it carries the console instance
+client = IBClient()
+client.connect("127.0.0.1", 7500, clientId=1001)
+
+## delay market data
+## set to 1 for real-time market data
+client.reqMarketDataType(1)
+# Start IB API client in background
 # pnl_theme = Theme({"profit": "green", "loss": "red"})
 # cs = Console(theme=pnl_theme)
 # define the asset to trade
-t = Trade(symbol="NVDA", position=10, console=console)
+t = Trade(symbol="KO", position=10, console=console)
 paper_account = "DU1591287"
 real_account = "U2008021"
 # Instantiate app
@@ -30,13 +38,6 @@ logger.info(msg)
 console.clear()
 console.print(msg)
 
-client = IBClient()
-client.connect("127.0.0.1", 7500, clientId=1001)
-
-## delay market data
-## set to 1 for real-time market data
-client.reqMarketDataType(1)
-# Start IB API client in background
 
 msg = f" [ {t.symbol} ] Starting ib client thread"
 logger.info(msg)

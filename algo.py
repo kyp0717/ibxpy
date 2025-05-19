@@ -3,19 +3,11 @@ import datetime
 import queue
 import sys
 import time
-from enum import IntEnum
 
 from loguru import logger
 
-# from rich.console import Console
-# from rich.theme import Theme
 from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus
 from trade import Trade
-
-
-class OrderType(IntEnum):
-    BUY = 1
-    SELL = 2
 
 
 def enter(t: Trade, client: IBClient):
@@ -65,6 +57,7 @@ def enter(t: Trade, client: IBClient):
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
                 t.console.print(f"{req} buy order sent ")
+                break
                 # return ord
             else:
                 continue
@@ -98,6 +91,7 @@ def check_buy_order(t: Trade, client: IBClient, orderfn):
                 break
             else:
                 x = x + 1
+                time.sleep(1)
                 continue
         except queue.Empty:
             t.console.print(f"{req} checking buy order status -- queue is empty ")
@@ -131,12 +125,10 @@ def check_sell_order(t: Trade, client: IBClient, bid_price: float):
                 break
             else:
                 # if order is not filled, wait 1 second
-                time.sleep(1)
                 x = x + 1
                 continue
         except queue.Empty:
             t.console.print(f"{req} Bid Order Status Queue --- empty ")
-            time.sleep(1)
             x = x + 1
             continue
 
@@ -193,3 +185,4 @@ def track(t: Trade, client: IBClient):
             req = f" reqid: {client.order_id} >>>"
             t.console.print(f"{req} Bid Order Status Queue is empty ")
             continue
+        time.sleep(3)
