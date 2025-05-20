@@ -56,8 +56,8 @@ msg = f" [ {t.symbol} ] Starting algo ..."
 logger.info(msg)
 console.print(msg)
 
-orderfn = algo.enter(t, client)
-algo.check_buy_order(t, client, orderfn)
+algo.enter(t, client)
+algo.check_buy_order(t, client)
 algo.track(t, client)
 
 
