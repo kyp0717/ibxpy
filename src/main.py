@@ -28,7 +28,7 @@ client.reqMarketDataType(1)
 # pnl_theme = Theme({"profit": "green", "loss": "red"})
 # cs = Console(theme=pnl_theme)
 # define the asset to trade
-t = Trade(symbol="KO", position=10, console=console)
+t = Trade(symbol="AAPL", position=10, console=console)
 paper_account = "DU1591287"
 real_account = "U2008021"
 # Instantiate app

@@ -59,7 +59,8 @@ class Trade:
             order.orderType = ordertype
             order.lmtPrice = lmtprice
             order.totalQuantity = self.position
-            order.outsideRth = False
+            # order.outsideRth = False
+            order.outsideRth = True
             return order
 
         return create_order
