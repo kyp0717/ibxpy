@@ -6,6 +6,7 @@ import queue
 from ibapi.client import EClient
 from ibapi.wrapper import ContractDetails, EWrapper
 from loguru import logger
+from rich.console import Console
 
 # use to pass msg btw algo module to IB App
 algo_request = queue.Queue()
@@ -18,13 +19,13 @@ qu_bid = queue.Queue()
 qu_orderstatus = queue.Queue()
 qu_pnl = queue.Queue()
 qu_pnlsingle = queue.Queue()
+console = Console()
 
 
 class IBClient(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.order_id = None
-        self.active_streams = set()
 
     def nextValidId(self, orderId):
         logger.info(f"[IB] Next valid order ID: {orderId}")
@@ -65,7 +66,7 @@ class IBClient(EWrapper, EClient):
             "avgFillPrice": avgFillPrice,
         }
         qu_orderstatus.put(msg)
-        logger.info(msg)
+        # logger.info(msg)
 
     def execDetails(self, reqId, contract, execution):
         msg = {
@@ -127,6 +128,20 @@ class IBClient(EWrapper, EClient):
     ):
         msg = {"reqId": reqId, "unrealizedPnL": unrealizedPnL, "value": value}
         qu_pnlsingle.put(msg)
+
+    def sell_remaining(self, orderId):
+        self.reqOpenOrders()
+        order = self.Order()
+        order.action = "SELL"
+        order.orderType = "LMT"
+        order.totalQuantity = 100
+        order.lmtPrice = 200  # Higher than market to delay fill
+
+        self.order_filled_qty[orderId] = 0
+        self.order_remaining_qty[orderId] = order.totalQuantity
+        self.order_status[orderId] = "Submitted"
+
+        self.placeOrder(orderId, self.contract, order)
 
 
 def start_ib_client(app):
