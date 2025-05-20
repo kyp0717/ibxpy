@@ -6,6 +6,7 @@ import queue
 from ibapi.client import EClient
 from ibapi.wrapper import ContractDetails, EWrapper
 from loguru import logger
+from rich.console import Console
 
 # use to pass msg btw algo module to IB App
 algo_request = queue.Queue()
@@ -18,16 +19,13 @@ qu_bid = queue.Queue()
 qu_orderstatus = queue.Queue()
 qu_pnl = queue.Queue()
 qu_pnlsingle = queue.Queue()
+console = Console()
 
 
 class IBClient(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.order_id = None
-        self.order_filled_qty = {}
-        self.order_remaining_qty = {}
-        self.order_status = {}
-        self.bid_price = 0.0
 
     def nextValidId(self, orderId):
         logger.info(f"[IB] Next valid order ID: {orderId}")
@@ -60,10 +58,6 @@ class IBClient(EWrapper, EClient):
         whyHeld,
         mktCapPrice,
     ):
-        self.order_id = orderId
-        self.order_status = status
-        self.order_filled_qty = filled
-        self.order_remaining_qty = remaining
         msg = {
             "orderId": orderId,
             "status": status,
@@ -72,7 +66,7 @@ class IBClient(EWrapper, EClient):
             "avgFillPrice": avgFillPrice,
         }
         qu_orderstatus.put(msg)
-        logger.info(msg)
+        # logger.info(msg)
 
     def execDetails(self, reqId, contract, execution):
         msg = {

@@ -6,41 +6,42 @@ import time
 
 # from ib_worker import start_ib_worker
 from loguru import logger
-from rich.console import Console
-from rich.theme import Theme
 
 import algo
-from ib_client import IBClient
+from ib_client import IBClient, console
 from trade import Trade
 
 # import logging
 logger.remove()  # Remove the default
 # logger.add(sys.stderr, level="TRACE", format="{time} | {level} | {message}")
-logger.add("./log/test.log", mode="w", level="TRACE")
+logger.add("test.log", mode="w", level="TRACE")
 # logger.add(sys.stderr, level="TRACE")
 
-pnl_theme = Theme({"profit": "green", "loss": "red"})
-cs = Console(theme=pnl_theme)
-# define the asset to trade
-t = Trade(symbol="AMD", position=10, console=cs)
-paper_account = "DU1591287"
-# Instantiate app
-# this must be done first to create queue to be imported
-msg = f" [ {t.symbol} ] IB client instantiated"
-logger.info(msg)
-cs.clear()
-cs.print(msg)
-
+## Must instantiate the client first because it carries the console instance
 client = IBClient()
 client.connect("127.0.0.1", 7500, clientId=1001)
 
 ## delay market data
-client.reqMarketDataType(3)
+## set to 1 for real-time market data
+client.reqMarketDataType(1)
 # Start IB API client in background
+# pnl_theme = Theme({"profit": "green", "loss": "red"})
+# cs = Console(theme=pnl_theme)
+# define the asset to trade
+t = Trade(symbol="KO", position=10, console=console)
+paper_account = "DU1591287"
+real_account = "U2008021"
+# Instantiate app
+# this must be done first to create queue to be imported
+msg = f" [ {t.symbol} ] IB client instantiated"
+logger.info(msg)
+console.clear()
+console.print(msg)
+
 
 msg = f" [ {t.symbol} ] Starting ib client thread"
 logger.info(msg)
-cs.print(msg)
+console.print(msg)
 # ibclient_thread = threading.Thread(target=start_ib_client, args=(client,), daemon=True)
 ibclient_thread = threading.Thread(target=client.run, daemon=True)
 ibclient_thread.start()
@@ -53,16 +54,17 @@ while client.order_id is None:
 # Start the trading algorithm in main thread
 msg = f" [ {t.symbol} ] Starting algo ..."
 logger.info(msg)
-cs.print(msg)
+console.print(msg)
 
-algo.enter_trade(t, client)
-algo.check_order(t, client)
-algo.exit_trade(t, client)
+orderfn = algo.enter(t, client)
+algo.check_buy_order(t, client, orderfn)
+algo.track(t, client)
 
 
-s = cs.input("Shutdown Algo? (y/n)")
+s = console.input("Shutdown Algo? (y/n)")
+
 if s == "y":
     client.disconnect()
-    cs.print("\nDisconnecting from TWS...")
+    console.print("\nDisconnecting from TWS...")
     ibclient_thread.join()
     sys.exit(0)
