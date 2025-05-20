@@ -66,7 +66,7 @@ class Trade:
         return create_order
 
     def display(self):
-        # self.console.clear()
+        self.console.clear()
         # Define a fixed-width format for alignment
 
         heading = f"[yellow] ********* {self.symbol} ********* [/yellow] "
