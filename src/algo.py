@@ -6,6 +6,7 @@ import time
 
 from loguru import logger
 
+import key_listener as kl
 from ib_client import IBClient, qu_ask, qu_bid, qu_ctx, qu_orderstatus
 from trade import Trade
 
@@ -52,11 +53,15 @@ def enter(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 2:
                 continue
             t.display()
-            buy = t.console.input(f"{req} Buy at {msg['price']} (y/n) ?")
-            if buy == "y":
+            t.console.print(f"{req} Buy at {msg['price']} (y/n) ?", end="")
+            input = kl.get_single_key()
+            if input == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
                 t.console.print(f"{req} buy order sent ")
+                break
+            if input == "c":
+                t.console.print(f"{req} Order cancel")
                 break
             else:
                 continue
@@ -101,7 +106,7 @@ def check_buy_order(t: Trade, client: IBClient):
 def check_sell_order(t: Trade, client: IBClient, bid_price: float):
     # allow 5 attempts before cancelling order
     x = 0
-    req = f" [ SELL ] reqid: {client.order_id} >>>"
+    req = f" [ SELL LMT ] reqid: {client.order_id} >>>"
     while True:
         try:
             t.display()
@@ -137,7 +142,7 @@ def check_sell_order(t: Trade, client: IBClient, bid_price: float):
 
 def liquidate(t: Trade, client: IBClient, price: float):
     # Send request
-    req = f" [ SELL MKT ] reqid: {client.order_id} >>>"
+    req = f"[ SELL MKT ] reqid: {client.order_id} >>>"
     ctx = t.define_contract()
     ordfn = t.create_order_fn(reqId=client.order_id, action="SELL", ordertype="MKT")
     ord = ordfn(price)
@@ -177,10 +182,11 @@ def track(t: Trade, client: IBClient):
             t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
             t.display()
-            sell = t.console.input(
-                f" [ HOLD ] >>> Current Bid at {msg['price']} - Sell (y/n)? "
+            input = t.console.print(
+                f" [ HOLD ] >>> Current Bid at {msg['price']} - Sell (y/n)? ", end=""
             )
-            if sell == "y":
+            input = kl.get_single_key()
+            if input == "y":
                 exit(t, client, msg["price"])
                 break
             else:
