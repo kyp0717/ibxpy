@@ -66,10 +66,10 @@ class Trade:
         return create_order
 
     def display(self):
-        self.console.clear()
+        # self.console.clear()
         # Define a fixed-width format for alignment
 
-        heading = f"[yellow] ********* {self.symbol} ********* [/yellow] "
+        heading = f"[yellow] \n********* {self.symbol} ********* [/yellow] "
         unrealval = Text(f"${self.unreal_pnlval:.2f}")
         unrealpct = Text(f"{self.unreal_pnlpct * 100:.2f}%")
         if self.unreal_pnlval == 0:
@@ -77,12 +77,12 @@ class Trade:
             unrealpct.stylize("blue")
             pnl = f" PnL (%): {unrealval} ({unrealpct}) "
         elif self.unreal_pnlval > 0:
-            heading = f"[green] ********* {self.symbol} ********* [/green] "
+            heading = f"[green] \n********* {self.symbol} ********* [/green] "
             pnl = f"[green] PnL (%): {unrealval} ({unrealpct}) [/green]"
             unrealval.stylize("green")
             unrealpct.stylize("green")
         else:
-            heading = f"[red] ********* {self.symbol} ********* [/red] "
+            heading = f"[red] \n********* {self.symbol} ********* [/red] "
             pnl = f"[red] PnL (%): {unrealval} ({unrealpct}) [/red]"
             unrealval.stylize("red")
             unrealpct.stylize("red")

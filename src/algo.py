@@ -53,12 +53,14 @@ def enter(t: Trade, client: IBClient):
             if time_diff.total_seconds() > 2:
                 continue
             t.display()
+            # t.console.print(f"{req} Buy at {msg['price']} (y/n) ?", end="")
             t.console.print(f"{req} Buy at {msg['price']} (y/n) ?", end="")
             input = kl.get_single_key()
+            # TODO: fix new line issue in conosle
             if input == "y":
                 ord = ordfn(msg["price"])
                 client.placeOrder(client.order_id, ctx, ord)
-                t.console.print(f"{req} buy order sent ")
+                t.console.print(f"\n{req} buy order sent ")
                 break
             if input == "c":
                 t.console.print(f"{req} Order cancel")
@@ -66,7 +68,7 @@ def enter(t: Trade, client: IBClient):
             else:
                 continue
         except queue.Empty:
-            t.console.print(f"{req} Waiting for ask price for {t.symbol}...")
+            t.console.print(f"\n{req} Waiting for ask price for {t.symbol}...")
             continue
         time.sleep(1)
 
@@ -84,7 +86,7 @@ def check_buy_order(t: Trade, client: IBClient):
                 # client.cancelOrder(client.order_id)
                 # t.console.print(f"{req} Order Cancel ")
                 # send cancel order
-            msg_ordstatus = qu_orderstatus.get(timeout=5)
+            msg_ordstatus = qu_orderstatus.get(timeout=2)
             t.console.print(f"{req} TWS Status: {msg_ordstatus['status']} ")
             # t.console.print(f"{req} TWS ReqMktData: {msg_ask['price']} ")
             if msg_ordstatus["status"] == "Filled":
@@ -99,27 +101,33 @@ def check_buy_order(t: Trade, client: IBClient):
                 continue
         except queue.Empty:
             t.console.print(f"{req} buy order status - empty queue  ")
+            # TODO: provide the option to cancel the order and exit app
+
             continue
             x = x + 1
 
 
+## NOTE: When placing order outside RTH, order status may not update.property
+## INFO: The code will not work properly outside of RTH
 def check_sell_order(t: Trade, client: IBClient, bid_price: float):
     # allow 5 attempts before cancelling order
     x = 0
     req = f" [ SELL LMT ] reqid: {client.order_id} >>>"
+    ## TODO: add case when outside RTH
     while True:
         try:
             t.display()
             t.console.print(f"{req} trying #{x} ")
-            msg_bid = qu_bid.get(timeout=5)
+            msg_bid = qu_bid.get(timeout=2)
             t.console.print(f"{req} Current bid {msg_bid['price']} ")
+
             if x == 6:
                 t.console.print(f"{req} Liquidating ... ")
                 liquidate(t, client, msg_bid["price"])
                 break
 
                 # send cancel order
-            ordstatus = qu_orderstatus.get(timeout=5)
+            ordstatus = qu_orderstatus.get(timeout=2)
             t.console.print(f"{req} Order Status: {ordstatus['status']} ")
             if (
                 ordstatus["orderId"] == client.order_id
@@ -182,10 +190,12 @@ def track(t: Trade, client: IBClient):
             t.unreal_pnlpct = (msg["price"] - t.entry_price) / t.entry_price
 
             t.display()
+            # TODO: fix new line issue in conosle
             input = t.console.print(
                 f" [ HOLD ] >>> Current Bid at {msg['price']} - Sell (y/n)? ", end=""
             )
             input = kl.get_single_key()
+            t.console.print("\n")
             if input == "y":
                 exit(t, client, msg["price"])
                 break
