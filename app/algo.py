@@ -48,7 +48,6 @@ def enter(t: Trade, client: IBClient):
     # Wait for status
     while True:
         try:
-            # TODO: Check queue size instead of using time!!!
             msg = qu_ask.get(timeout=5)
             time_diff = datetime.datetime.now() - msg["time"]
             if time_diff.total_seconds() > 2:
