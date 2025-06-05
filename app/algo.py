@@ -19,7 +19,6 @@ def enter(t: Trade, client: IBClient):
     #     return None
     # Send request
 
-    t.display()
     client.nextId()
     req = f" reqid: {client.order_id} >>>"
     t.console.print(req + " new reqid created")
@@ -48,7 +47,6 @@ def enter(t: Trade, client: IBClient):
     # Wait for status
     while True:
         try:
-            # TODO: Check queue size instead of using time!!!
             msg = qu_ask.get(timeout=5)
             time_diff = datetime.datetime.now() - msg["time"]
             if time_diff.total_seconds() > 2:
