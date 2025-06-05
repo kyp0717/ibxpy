@@ -19,7 +19,6 @@ def enter(t: Trade, client: IBClient):
     #     return None
     # Send request
 
-    t.display()
     client.nextId()
     req = f" reqid: {client.order_id} >>>"
     t.console.print(req + " new reqid created")
