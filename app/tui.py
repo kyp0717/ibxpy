@@ -67,13 +67,13 @@ class TUI:
                 self.show_entry()
                 self.show_pnl()
             case STAGE.EXITING:
-                h = " [ Trade Status ] Selling"
+                h = " [ Trade Status ] Closing Position"
                 self.show_heading()
                 self.cs.print(h)
                 self.show_entry()
                 self.show_pnl()
             case STAGE.EXIT:
-                h = " [ Trade Status ] SOLD"
+                h = " [ Trade Status ] Postion Close"
                 self.show_heading()
                 self.cs.print(h)
                 self.show_entry()
@@ -87,11 +87,11 @@ class TUI:
                 self.show_exit()
                 self.show_pnl()
 
-    def check_entry(self, id, qu: Queue) -> STAGE:
-        self.cs.print(f" reqid {id} >>> Status: {qu['status']} ")
-        if qu["status"] == "Filled":
-            self.cs.print(f" reqid {id} >>> Entry Price: {qu['avgFillPrice']} ")
-            self.tr.entry_price = qu["avgFillPrice"]
+    def check_entry(self, id, ord: Queue) -> STAGE:
+        self.cs.print(f" reqid {id} >>> Status: {ord['status']} ")
+        if ord["status"] == "Filled":
+            self.cs.print(f" reqid {id} >>> Entry Price: {ord['avgFillPrice']} ")
+            self.tr.entry_fill_price = ord["avgFillPrice"]
             return STAGE.HOLD
         else:
             self.cs.print(f" reqid {id} >>> order not filled ")
@@ -99,12 +99,12 @@ class TUI:
             # self.cs.print(qu)
             return STAGE.ENTERING
 
-    def check_exit(self, id, qu: Queue) -> STAGE:
-        if self.tr.ids.sell == qu["orderId"]:
-            self.cs.print(f" reqid {id} >>> Status: {qu['status']} ")
-            if qu["status"] == "Filled":
-                self.cs.print(f" reqid {id} >>> Exit Price: {qu['avgFillPrice']} ")
-                self.tr.exit_price = qu["avgFillPrice"]
+    def check_exit(self, id, ord: Queue) -> STAGE:
+        if self.tr.ids.sell == ord["orderId"]:
+            self.cs.print(f" reqid {id} >>> Status: {ord['status']} ")
+            if ord["status"] == "Filled":
+                self.cs.print(f" reqid {id} >>> Exit Price: {ord['avgFillPrice']} ")
+                self.tr.exit_fill_price = ord["avgFillPrice"]
                 return STAGE.EXIT
             else:
                 self.cs.print(f" reqid {id} >>> order not filled ")

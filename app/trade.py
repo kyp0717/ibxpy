@@ -41,7 +41,9 @@ class Trade:
         self.position = position
         self.stop_loss: float = 0.0
         self.entry_price: float = 0.0
+        self.entry_fill_price: float = 0.0
         self.exit_price: float = 0.0
+        self.exit_fill_price: float = 0.0
         self.conid = None
 
         self.unreal_pnlval: float = 0.0

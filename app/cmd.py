@@ -41,3 +41,6 @@ class Cmd:
             self.client.order_id, self.trade.contract, "", False, False, []
         )
         self.trade.stage = STAGE.ENTRY
+
+    def drift(self, current_price: float):
+        pass

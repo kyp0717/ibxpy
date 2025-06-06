@@ -67,6 +67,7 @@ while True:
                 cs.print(input)
                 if input == "y":
                     cmd.buy_limit(msg["price"])
+                    t.entry_price = msg["price"]
                     t.ids.buy = client.order_id
                     cs.print(
                         f"\n [ reqid {client.order_id} ] buy limit order submitted ",
@@ -84,7 +85,16 @@ while True:
                 t.stage = tui.check_entry(client.order_id, ordstat)
             except queue.Empty:
                 cs.print(f" [ reqid {client.order_id} ] order status queue empty")
-                time.sleep(0.5)
+                try:
+                    ask = qu_ask.get(timeout=1)
+                    drift = cmd.drift_entry(ask["price"])
+                    if drift > 0.02:
+                        # TODO: Cancel order if drift is too wide
+                        pass
+                    time.sleep(0.5)
+                except queue.Empty:
+                    cs.print(f" [ reqid {client.order_id} ] ask queue empty")
+                    continue
         case STAGE.HOLD:
             try:
                 msg = qu_bid.get(timeout=2)
@@ -94,6 +104,7 @@ while True:
                 input = kl.get_single_key()
                 cs.print(input)
                 if input == "y":
+                    t.exit_price = msg["price"]
                     cmd.sell_limit(msg["price"])
                     cs.print(
                         f"\n [ reqid {client.order_id} ] sell limit order submitted ",
@@ -112,6 +123,16 @@ while True:
                 ordstat = qu_orderstatus.get(timeout=1)
                 t.stage = tui.check_exit(client.order_id, ordstat)
             except queue.Empty:
+                try:
+                    bid = qu_bid.get(timeout=1)
+                    drift = cmd.drift_entry(bid["price"])
+                    if drift > 0.02:
+                        # TODO: Cancel order if drift is too wide
+                        pass
+                    time.sleep(0.5)
+                except queue.Empty:
+                    cs.print(f" [ reqid {client.order_id} ] ask queue empty")
+                    continue
                 cs.print(f" [ reqid {client.order_id} ] order status queue empty")
                 time.sleep(1)
         case STAGE.EXIT:
