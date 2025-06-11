@@ -11,7 +11,8 @@ class STAGE(Enum):
     HOLD = 4
     EXIT = 5
     EXITING = 6
-    DISCONNECT = 7
+    CANCEL = 7
+    DISCONNECT = 8
 
 
 @dataclass

@@ -111,3 +111,6 @@ class TUI:
                 return STAGE.EXITING
         else:
             return STAGE.EXITING
+
+    def check_cancel(self, id, ord: Queue) -> STAGE:
+        pass

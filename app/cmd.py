@@ -44,3 +44,6 @@ class Cmd:
 
     def drift(self, current_price: float):
         pass
+
+    def cancel_order(self):
+        pass

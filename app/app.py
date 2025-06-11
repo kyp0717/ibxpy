@@ -123,18 +123,24 @@ while True:
                 ordstat = qu_orderstatus.get(timeout=1)
                 t.stage = tui.check_exit(client.order_id, ordstat)
             except queue.Empty:
+                cs.print(f" [ reqid {client.order_id} ] order status queue empty")
+                time.sleep(1)
                 try:
                     bid = qu_bid.get(timeout=1)
                     drift = cmd.drift_entry(bid["price"])
+                    # TODO: if drift is greater than x %, cancel order
                     if drift > 0.02:
-                        # TODO: Cancel order if drift is too wide
-                        pass
-                    time.sleep(0.5)
+                        cmd.cancel_order()
+                        t.stage = STAGE.CANCEL
                 except queue.Empty:
-                    cs.print(f" [ reqid {client.order_id} ] ask queue empty")
+                    cs.print(f" [ reqid {client.order_id} ] bid queue empty")
                     continue
-                cs.print(f" [ reqid {client.order_id} ] order status queue empty")
-                time.sleep(1)
+        case STAGE.CANCEL:
+            try:
+                ordstat = qu_orderstatus.get(timeout=1)
+                t.stage = tui.check_cancel(client.order_id, ordstat)
+            except queue.Empty:
+                pass
         case STAGE.EXIT:
             # tui.show()
             s = cs.input(" >>> Disconnect from client? (y/n)")
