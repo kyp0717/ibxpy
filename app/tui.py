@@ -113,4 +113,13 @@ class TUI:
             return STAGE.EXITING
 
     def check_cancel(self, id, ord: Queue) -> STAGE:
-        pass
+        if self.tr.ids.sell == ord["orderId"]:
+            self.cs.print(f" reqid {id} >>> Status: {ord['status']} ")
+            if ord["status"] == "Cancelled":
+                self.cs.print(f" reqid {id} >>> Sell Order has been canceled ")
+                return STAGE.HOLD
+            else:
+                self.cs.print(f" reqid {id} >>> order cancellation not fulfilled ")
+                return STAGE.CANCEL
+        else:
+            return STAGE.CANCEL

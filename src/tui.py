@@ -12,8 +12,6 @@ class TUI:
     def run(self):
         pass
 
-        k
-
     def heading(self):
         heading = f"[yellow] \n********* {self.symbol} ********* [/yellow] "
         unrealval = Text(f"${self.trade.unreal_pnlval:.2f}")

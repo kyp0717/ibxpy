@@ -42,8 +42,10 @@ class Cmd:
         )
         self.trade.stage = STAGE.ENTRY
 
-    def drift(self, current_price: float):
-        pass
+    def drift(self, current_price: float) -> float:
+        x = self.trade.exit_price - current_price
+        return x
 
     def cancel_order(self):
-        pass
+        self.client.cancelOrder(self.trade.ids.sell)
+        self.trade.stage = STAGE.HOLD

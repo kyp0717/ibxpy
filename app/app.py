@@ -75,7 +75,6 @@ while True:
                     )
                     t.stage = STAGE.ENTERING
             except queue.Empty:
-                # TODO: provide the option to cancel the order and exit app
                 cs.print(f" [ reqid {client.order_id} ] ask queue empty")
                 cs.print(f" [ reqid {client.order_id} ] waiting for ask price")
                 time.sleep(1)
@@ -127,9 +126,15 @@ while True:
                 time.sleep(1)
                 try:
                     bid = qu_bid.get(timeout=1)
-                    drift = cmd.drift_entry(bid["price"])
-                    # TODO: if drift is greater than x %, cancel order
-                    if drift > 0.02:
+                    drift = cmd.drift(bid["price"])
+                    # TODO: if drift is greater than 5 cents, cancel order
+                    if drift > 0.05:
+                        cs.print(
+                            f" [ reqid {client.order_id} ] drift is greater than 5 cents"
+                        )
+                        cs.print(
+                            f" [ reqid {client.order_id} ] sending order cancellation"
+                        )
                         cmd.cancel_order()
                         t.stage = STAGE.CANCEL
                 except queue.Empty:
@@ -140,7 +145,10 @@ while True:
                 ordstat = qu_orderstatus.get(timeout=1)
                 t.stage = tui.check_cancel(client.order_id, ordstat)
             except queue.Empty:
-                pass
+                cs.print(
+                    f" [ reqid {client.order_id} ] waiting for order cancellation confirmation"
+                )
+                continue
         case STAGE.EXIT:
             # tui.show()
             s = cs.input(" >>> Disconnect from client? (y/n)")
